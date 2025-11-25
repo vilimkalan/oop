@@ -1,0 +1,231 @@
+using System.Reflection.Emit;
+
+namespace vjebe3
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Random generator = new Random();
+            SpaceShip[] ships = new SpaceShip[]
+            {
+        new StarAllianceScout(10, 0, 0.6, 1, generator),
+        new StarAllianceHeavyBomber(100, 100, 15, 5, 30),
+        new StarAllianceHeavyBomber(30, 0, 20, 5, 30),
+        new StarAllianceScout(40, 100, 0.2, 3, generator),
+        new StarAllianceHeavyBomber(100, 100, 18, 5, 30),
+        new StarAllianceScout(50, 100, 0.4, 2, generator),
+            };
+
+            Console.WriteLine("=== Prije bitke ===");
+            foreach (var ship in ships)
+                Console.WriteLine(ship);
+
+            int flyableCount = Simulation.RunBattle(ships);
+
+            Console.WriteLine("\n=== Nakon bitke ===");
+            foreach (var ship in ships)
+                Console.WriteLine(ship);
+
+            Console.WriteLine($"\nBroj brodova koji još mogu letjeti: {flyableCount}");
+
+
+
+        }
+    }
+
+    public abstract class SpaceShip
+    {
+        public int Energy { get; private set; }
+        public int Shields { get; private set; }
+
+        protected SpaceShip(int energy, int shields)
+        {
+            this.Energy = energy;
+            this.Shields = shields;
+        }
+
+        public virtual void TakeDamage(int damage)
+        {
+            int damageDone = damage - Shields;
+            if (damageDone < 0)
+            {
+                Shields -= damage;
+                return;
+            }
+            Shields = 0;
+            Energy = Math.Max(0, Energy - damageDone);
+        }
+
+        public abstract void Attack(SpaceShip target);
+
+        public virtual bool IsFlyable() => Energy > 0;
+
+        public override string ToString() => $"Ship E[{Energy}], S[{Shields}]";
+    }
+
+    public class StarAllianceFighter : SpaceShip
+    {
+        private const int DeflectionBonus = 1;
+        public int GunCount { get; private set; }
+        public int GunPower { get; private set; }
+
+        public StarAllianceFighter(int energy, int shields, int gunCount, int gunPower)
+            : base(energy, shields)
+        {
+            GunCount = gunCount;
+            GunPower = gunPower;
+        }
+
+        public override void Attack(SpaceShip target)
+        {
+            target.TakeDamage(GunCount * GunPower);
+        }
+
+        public override void TakeDamage(int damage)
+        {
+            base.TakeDamage(damage - DeflectionBonus);
+        }
+    }
+
+    public class StarAllianceScout : SpaceShip
+    {
+        public double AvoidChance { get; private set; }
+        public int LaserDamage { get; private set; }
+        private Random Generator { get; set; }
+
+
+        public StarAllianceScout(int energy, int shields,  double AvoidChance, int LaserDamage, Random Generator) : base(energy, shields)
+        {
+
+            this.AvoidChance = AvoidChance;
+            this.LaserDamage = LaserDamage;
+            this.Generator = Generator;
+
+        }
+
+
+        public override void Attack(SpaceShip target)
+        {
+            if (target.Shields == 0)
+            {
+                target.TakeDamage(LaserDamage);
+            }
+        }
+
+        public override void TakeDamage(int damage)
+        {
+            double roll = Generator.NextDouble();
+            if (roll > AvoidChance)
+            {
+                base.TakeDamage(damage);
+            }
+        }
+
+
+        public override string ToString()
+        {
+            return base.ToString() + $" Scout(AvoidChance={AvoidChance}, LaserDamage={LaserDamage})";
+        }
+
+
+
+    }
+
+    public class StarAllianceHeavyBomber : SpaceShip
+    {
+        private int bombs { get; set; }
+        private int bombDamage { get; set; }
+        private int razShield { get;  set; }
+
+
+        public StarAllianceHeavyBomber(int energy, int shields, int bombs, int bombDamage, int razShield) : base(energy, shields) {
+        
+            this.bombs = bombs;
+            this.bombDamage = bombDamage;
+            this.razShield = razShield;
+        }
+        private const double BurstScale = 1.2;
+
+        public override void Attack(SpaceShip target)
+        {
+            if (bombs > 0)
+            {
+                int damage = bombDamage;
+                if (Shields == 0)
+                {
+                    damage = (int)(bombDamage * BurstScale);
+                }
+
+                target.TakeDamage(damage);
+                bombs--;
+            }
+            
+        }
+
+
+        public override void TakeDamage(int damage)
+        {
+
+            if (razShield > 0)
+            {
+                if (razShield >= damage) 
+                { 
+                razShield -= damage;
+                return;
+                }
+                else
+                {
+                    damage -= razShield;
+                    razShield = 0;
+                }
+            }
+            base.TakeDamage(damage);
+              
+
+               
+
+               
+               
+            
+        }
+        public override string ToString()
+        {
+            return base.ToString() + $" Bomber(Bombs={bombs}, BombDamage={bombDamage}, ExtraShield={razShield})";
+        }
+
+    }
+
+    public static class Simulation
+    {
+        public static int RunBattle(SpaceShip[] ships)
+        {
+            for (int i = 0; i < ships.Length; i++)
+            {
+                for (int j = 0; j < ships.Length; j++)
+                {
+                    if (i != j)
+                    {
+                        ships[i].Attack(ships[j]);
+                    }
+                }
+            }
+
+            int flyableCount = 0;
+            foreach (var ship in ships)
+            {
+                if (ship.IsFlyable())
+                    flyableCount++;
+            }
+            return flyableCount;
+
+
+
+        }
+    }
+
+
+
+
+}
+
