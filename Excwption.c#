@@ -1,0 +1,110 @@
+using System.Runtime.Serialization;
+
+internal class Program
+{
+    static void Main(string[] args)
+    {
+        Console.WriteLine("upisite koliko novaca zelite podignuti");
+        string kolicinaUpis = Console.ReadLine();
+        int kolicina = int.Parse(kolicinaUpis);
+        Korisnik korisnik=new Korisnik();
+        korisnik.Ime_prezime = "VilimKalan";
+        BankAcc racun=new BankAcc();
+        racun.korisnik = korisnik;
+
+        try
+        {
+            racun.Podigni(kolicina);
+            Console.WriteLine(racun.Stanje);
+        }
+        catch(OverMinusLimitException e)
+        {
+            Console.WriteLine(e.Message);
+        }
+        catch (OverDailyLimitException e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+    }
+}
+
+[Serializable]
+public class AccountException : Exception
+{
+    public AccountException() { }
+    public AccountException(string message) : base(message) { }
+    public AccountException(string message, Exception innerException) : base(message, innerException) { }
+
+    protected AccountException(SerializationInfo info, StreamingContext context)
+        : base(info, context) { }
+}
+
+public class OverMinusLimitException: AccountException
+{
+    public OverMinusLimitException() { }
+    public OverMinusLimitException(string Message):base(Message) { }
+
+    public OverMinusLimitException(string Message, Exception inerException):base(Message, inerException) { }
+
+    protected OverMinusLimitException(SerializationInfo info, StreamingContext context) :base(info, context) { }
+
+
+}
+public class OverDailyLimitException : AccountException
+{
+    public OverDailyLimitException() { }
+    public OverDailyLimitException(string Message) : base(Message) { }
+
+    public OverDailyLimitException(string Message, Exception inerException) : base(Message, inerException) { }
+
+    protected OverDailyLimitException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+
+}
+public class BankAcc
+{
+    public Korisnik korisnik {  get;  set; }
+
+    public int Stanje { get; private set; } = 1000;
+    public int MaxMinus { get; private set; } = -200;
+    public int DnevniMax { get; private set; } = 10000;
+
+    public int Podigni(int euri)
+    {
+        if (euri>DnevniMax)
+        {
+            throw new OverDailyLimitException("Dnevni limit je pređen");
+        }
+
+        if (Stanje - euri < MaxMinus)
+        {
+            throw new OverMinusLimitException("preveliki minus");
+        }
+        Stanje -= euri;
+
+        return Stanje;
+    }
+
+}
+public class Korisnik
+{
+    public string Ime_prezime { get;  set; } = "";
+    
+}
+    /*
+ 
+
+U slučaju podizanja prevelike svote novca podići iznimku. 
+    
+
+
+Omogućiti podizanje dviju
+različitih iznimki, prema tipu prekoračenja. Ove iznimke treba izvesti iz vlastite klase
+AccountException koja nasljeđuje klasu System.Exception. Definirati odgovarajuće
+konstruktore za vlastite klase iznimki.
+     
+     
+     
+     
+     */
+
