@@ -1,0 +1,56 @@
+using System.Runtime.Serialization;
+
+internal class Program
+{
+    static void Main(string[] args)
+    {
+        int[] days = new int[] { 11, 12, 13, 14 };
+        Console.WriteLine(String.Join(",", days));
+
+        int largestDayPosition = ArrayUtilities.FindLargestIndex(days);
+        Console.WriteLine(days[largestDayPosition]);
+
+        double[] temperatures = new double[] { 24.12, 17.6, 7.46, 10.8, 11.3 };
+        Console.WriteLine(String.Join(",", temperatures));
+
+        int largestTemperaturePosition = ArrayUtilities.FindLargestIndex(temperatures);
+        Console.WriteLine(temperatures[largestTemperaturePosition]);
+
+    }
+}
+
+public static class ArrayUtilities
+{
+    public static T FindMaxValue<T>(T[] array) where T : IComparable<T>
+    {
+        T max = array[0];
+        
+        for (int i = 1; i < array.Length; i++)
+        {
+            if (array[i].CompareTo(max) > 0)
+            {
+                max= array[i];
+            }
+
+        }
+
+
+
+        return max;
+
+    }
+    public static int FindLargestIndex<T>(T[] array) where T : IComparable<T>
+    {
+        int largest = 0;
+
+        for (int i = 1; i < array.Length; i++)
+        {
+            if (array[i].CompareTo(array[largest]) == 1)
+            {
+                largest = i;
+            }
+        }
+
+        return largest;
+    }
+}
