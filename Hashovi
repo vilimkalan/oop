@@ -1,0 +1,92 @@
+
+using System.Runtime.Serialization;
+
+internal class Program
+{
+    static void Main(string[] args)
+    {
+        // creating a set;
+        HashSet<char> letters = new HashSet<char>();
+        letters.Add('a');
+        letters.Add('q');
+        letters.Add('a');
+        Console.WriteLine("characeters");
+        Console.WriteLine(GetAsString(letters));
+
+        HashSet<char> numbers = new HashSet<char>();
+        numbers.Add('2');
+        numbers.Add('1');
+
+        Console.WriteLine("numbers");
+        Console.WriteLine(GetAsString(numbers));
+
+        //combining sets:
+
+        letters.UnionWith(numbers);
+        Console.WriteLine("letters after union");
+        Console.WriteLine(GetAsString(letters));
+
+        HashSet<char> vowels = new HashSet<char>("aeiouAEIOU");
+        Console.WriteLine("vowels");
+        Console.Write(GetAsString(vowels));
+
+        HashSet<char> sentence = new HashSet<char>("The quick brown fox");
+        sentence.IntersectWith(vowels);
+        Console.WriteLine("vowels in sentence");
+        Console.WriteLine(GetAsString(sentence));
+
+        HashSet<Package> packages = new HashSet<Package>();
+        packages.Add(new Package(1, 11.0m));
+        packages.Add(new Package(3.13, 220.0m));
+        packages.Add(new Package(1, 11.0m));
+        Console.WriteLine(GetAsString(packages));
+    }
+
+
+    public class Package : IEquatable<Package>
+    {
+        private readonly double weight;
+        private readonly decimal price;
+
+        public double Weight { get => weight; }
+        public decimal Price { get => price; }
+
+        public Package(double wight, decimal price)
+        {
+            this.weight = wight;
+            this.price = price;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Weight, Price);
+        }
+
+        public override string ToString()
+        {
+            return $"package trezinn {weight},cijena {price} ";
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Package == false) return false;
+            return Equals((Package)obj);
+
+        }
+
+        public bool Equals(Package package)
+        {
+            return weight == package.weight && price == package.price;
+        }
+    }
+
+    static  string GetAsString<T>(HashSet<T> set)
+    {
+        string output = string.Empty;
+        foreach (var element in set)
+        {
+            output += $"{element}-{Environment.NewLine}";
+        }
+        return output;
+    }
+}
