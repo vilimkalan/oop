@@ -1,0 +1,50 @@
+using System.Runtime.Serialization;
+
+internal class Program
+{
+    static void Main(string[] args)
+    {
+        Dictionary<string, Color> palette = new Dictionary<string, Color>();
+        palette.Add("white", new Color(255,255,255));
+        palette.Add("Red", new Color(255, 0, 0));
+        // Adding new element with same key will throw an exception:
+        // palette.Add("Red", new Color(255, 20, 60));
+        // Using key as index will update:
+
+        palette["Red"] = new Color(255, 20, 60);
+
+        Console.WriteLine(GetAsString(palette));
+        // Values are retrieved using the key:
+        Color red = palette["Red"];
+        Console.WriteLine(red);
+
+
+    }
+
+    public struct Color
+    {
+        readonly int R;
+        readonly int G;
+        readonly int B;
+
+        public Color(int r, int g, int b)
+        {
+            R = r; G = g; B = b;
+        }
+        public override string ToString()
+        {
+            return $"{R},{G},{B}";
+        }
+    }
+
+    public static string GetAsString<K,V>(Dictionary<K,V> dictionary)
+    {
+        string output = string.Empty;
+        foreach(var key in dictionary.Keys)
+        {
+            output += $"Value under [{key}]: {dictionary[key]}{Environment.NewLine}";
+
+        }
+        return output;
+    }
+}
