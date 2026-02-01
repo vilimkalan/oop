@@ -1,0 +1,180 @@
+
+using System.ComponentModel;
+using System.Dynamic;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
+using System.Transactions;
+
+internal class Program
+{
+   
+    static void Main(string[] args)
+    {
+        Console.WriteLine("upisite koliko elemenata hocete");
+        int n = int.Parse(Console.ReadLine());
+
+        List<SolarPanel> lista = new List<SolarPanel>();
+
+        Random rand =new Random();
+
+        for(int i=0; i<n; i++)
+        {
+            if (i <= n / 2)
+            {
+                lista.Add(new SolarPanel(rand.NextDouble() * 5 + 0.5, rand.NextDouble() * 5 + 0.5, rand.NextDouble() * 0.9 + 0.1));
+            }
+            else
+            {
+                lista.Add(new StariPanel(
+                    rand.NextDouble() * 5 + 0.5, 
+                    rand.NextDouble() * 5 + 0.5, 
+                    rand.NextDouble() * 0.9 + 0.1,
+                    rand.NextDouble()*0.1,
+                    rand.Next(1,20)
+                    ));
+            }
+        }
+        double maxEnerg = 0; 
+        foreach(var p in lista)
+        {
+            try
+            {
+                double energ = p.YearlyEf();
+                if (energ > maxEnerg)
+                {
+                    maxEnerg = energ;
+                }
+            }
+            catch(LowEffException e)
+            {
+                Console.WriteLine($"iznimkka konacna ef je{e.FinalEff}");
+            }
+        }
+        Console.WriteLine($"najveca energija je {maxEnerg}");
+    }
+
+
+    public class Utilities
+    {
+
+        public static bool AreUniqe(SolarPanel[] panel)
+        {
+
+            for (int i = 0; i < panel.Length - 1; i++)
+            {
+                for (int j = i + 1; j < panel.Length; j++)
+                {
+                    if (panel[i] == panel[j])
+                    {
+                        return false;
+                    }
+
+                }
+            }
+            return true;
+
+        }
+
+
+    }
+    public class SolarPanel
+    {
+        private double width;
+        private double height;
+        private double efficiency; // U rasponu [0.1 - 1.0]
+
+        public SolarPanel()
+        {
+            width = 0.1;
+            height = 0.1;
+            efficiency = 0.1;
+        }
+
+
+        public SolarPanel(double width, double height, double efficiency)
+        {
+            this.width = width;
+            this.height = height;
+            this.efficiency = efficiency;
+        }
+        public double Efficiency
+        {
+            get { return efficiency; }
+            set { efficiency = Math.Clamp(value, 0.1, 1.0); }
+        }
+        public double Width
+        {
+            get { return width; }
+            set { width = value; }
+        }
+
+        public double Height
+        {
+            get { return height; }
+            set { height = value; }
+        }
+
+        public virtual double YearlyEf()
+        {
+            return (width * height) * efficiency * 1300;
+        }
+
+        public static bool operator ==(SolarPanel a, SolarPanel b)
+        {
+            return ((a.Height == b.Height) && (a.Width == b.Width) && (a.Efficiency == b.Efficiency));
+        }
+
+        public static bool operator !=(SolarPanel a, SolarPanel b)
+        {
+            return !((a.Height == b.Height) && (a.Width == b.Width) && (a.Efficiency == b.Efficiency));
+        }
+    }
+
+
+    public class StariPanel : SolarPanel
+    {
+        private double FaktStarenja { get; set; }
+        private int GodineStarosti { get; set; }
+        public StariPanel(double width, double height, double efficiency, double FaktStarenja, int GodineStarosti) : base(width, height, efficiency)
+        {
+            this.FaktStarenja = Math.Clamp(FaktStarenja, 0.0, 0.1);
+            this.GodineStarosti = GodineStarosti;
+        }
+
+        public void Inkrement()
+        {
+            GodineStarosti++;
+        }
+
+        public override double YearlyEf()
+        {
+            double umanjenje = GodineStarosti * FaktStarenja;
+            double ukupanEff = Efficiency - umanjenje;
+
+
+
+            if ((ukupanEff) < 0.02)
+            {
+                throw new LowEffException(ukupanEff);
+            }
+
+
+
+
+            return (Width * Height) * ukupanEff * 1300; ;
+        }
+
+    }
+    public class LowEffException : Exception
+    {
+        public double FinalEff { get; private set; }
+
+        public LowEffException(double finalEff) : base($"kontačna efikasnost je preniska{finalEff}")
+        {
+            FinalEff = finalEff; 
+        }
+          
+        }
+    }
+
