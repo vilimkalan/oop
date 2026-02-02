@@ -168,3 +168,91 @@ public class DeliveryException : Exception
 
 
 }
+
+
+
+
+class Package
+{
+    public double Weight { get; set; }
+    public string City { get; set; }
+    public int Priority { get; set; }
+
+    public Package(double weight, string city, int priority)
+    {
+        Weight = weight;
+        City = city;
+        Priority = priority;
+    }
+}
+   
+ interface IPrioritizer
+{
+    List<Package> NewPackageList(List<Package> packages);
+    List<string> NewCityList(List<Package> packages);
+}
+
+class CityPrioritizer : IPrioritizer
+{
+    List<string> cities = new List<string>();
+    public void AddCity(string city) => cities.Add(city);
+
+    public List<Package> NewPackageList(List<Package> packages)
+    {
+        double AvgWeight = packages.Average(package => package.Weight);
+        List<Package> iznadAvg = new List<Package>();
+
+        foreach (Package package in packages)
+        {
+            if (package.Weight > AvgWeight && cities.Contains(package.City))
+            {
+                iznadAvg.Add(package);
+            }
+
+        }
+        return iznadAvg;
+
+    }
+    public List<string> NewCityList(List<Package> packages)
+    {
+        int MaxPriority = packages.Max(packages => packages.Priority);
+        List<string> prioGrad = new List<string>();
+        foreach (Package package in packages)
+        {
+            if (package.Priority > MaxPriority)
+            {
+                prioGrad.Add(package.City);
+            }
+
+        }
+
+        return prioGrad;
+    }
+}
+
+class Pohrana
+{
+    private List<Package> paketLista;
+    public Pohrana()
+    {
+       paketLista = new List<Package>();
+    }
+
+    public void AddPaket(Package package)
+    {
+        paketLista.Add(package);
+    }
+
+    public double prioritetiTezina(int prioritet)
+    {
+        double suma = 0;
+        foreach (var p in paketLista) {
+            if (p.Priority == prioritet)
+            {
+                suma += p.Weight;
+            }
+        }
+        return suma;
+    }
+
+}
