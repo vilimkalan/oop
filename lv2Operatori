@@ -1,0 +1,122 @@
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+        TeamStatistics hajduk = new TeamStatistics();
+
+        Console.WriteLine(hajduk.ToString());
+
+        hajduk.Add(3, 1);
+        hajduk.Add(0, 0);
+
+        Console.WriteLine(hajduk.ToString());
+
+        TeamStatistics projection = new TeamStatistics(2, 3, 1, 6, 3);
+
+        TeamStatistics hajdukProjection = hajduk + projection;
+
+        Console.WriteLine(hajdukProjection.ToString());
+
+        TeamStatistics[] statistics = new TeamStatistics[]
+        {
+    new TeamStatistics(6, 1, 2, 20, 7),
+    new TeamStatistics(7, 0, 3, 13, 6),
+    new TeamStatistics(1, 4, 6, 8, 25),
+    new TeamStatistics(7, 1, 2, 21, 8),
+    new TeamStatistics(0, 1, 10, 7, 28),
+    new TeamStatistics(4, 4, 2, 10, 7),
+    new TeamStatistics(4, 3, 3, 24, 17),
+    new TeamStatistics(3, 4, 3, 14, 11),
+    new TeamStatistics(3, 3, 5, 14, 24),
+    new TeamStatistics(3, 5, 2, 16, 14),
+        };
+
+
+        Console.WriteLine();
+        TeamStatistics najTim = new TeamStatistics();
+        foreach(var tim in statistics)
+        {
+            if(tim.Bodovi>najTim.Bodovi) najTim = tim;
+           
+        }
+        Console.WriteLine();
+        Console.WriteLine(najTim.ToString());
+    }
+}
+
+public class TeamStatistics
+{
+    public int Pobjede{ get; private set; }
+    public int Gubitci { get; private set; }
+    public int Nerjeseni { get; private set; }
+    public int BrojZabijenih {  get; private set; }
+    public int BrojDobijenih { get; private set; }
+    public const int BodoviPobjeda = 3;
+    public const int BodoviNerjeseno = 3;
+
+    public TeamStatistics()
+    {
+        Pobjede = 0;
+        Gubitci = 0;
+        Nerjeseni = 0;
+        BrojZabijenih = 0;
+        BrojDobijenih = 0;
+    }
+    public TeamStatistics(int pobjede, int gubitci, int nerjeseni, int brojZabijenih, int brojDobijenih)
+    {
+        Pobjede = pobjede;
+        Gubitci = gubitci;
+        Nerjeseni = nerjeseni;
+        BrojZabijenih = brojZabijenih;
+        BrojDobijenih = brojDobijenih;
+    }
+
+    public int Bodovi => Pobjede * BodoviPobjeda + Nerjeseni * BodoviNerjeseno;
+
+    public int UkupnoUtakmica => Pobjede + Gubitci + Nerjeseni;
+
+    public int GolRazlika => (BrojDobijenih - BrojZabijenih);
+
+    public void Add(int Z, int P)
+    {
+        BrojDobijenih += Z;
+        BrojZabijenih += P;
+    }
+
+
+    public override string ToString()
+    {
+        return $"Pobjede-{Pobjede}, Gubitci-{Gubitci}, Nerjeseni-{Nerjeseni}, ";
+    }
+
+    public static TeamStatistics operator+(TeamStatistics a, TeamStatistics b)
+    {
+        return new TeamStatistics(a.Pobjede+b.Pobjede,a.Gubitci+b.Gubitci,a.Nerjeseni+b.Nerjeseni,a.BrojZabijenih+b.BrojZabijenih,a.BrojDobijenih+b.BrojDobijenih);
+    }
+
+    public static bool operator>(TeamStatistics a, TeamStatistics b)
+    {
+        if (a.Bodovi != b.Bodovi)
+        {
+            return a.Bodovi > b.Bodovi;
+
+        }
+        else
+        {
+            return a.GolRazlika > b.GolRazlika;
+        }
+    }
+
+    public static bool operator <(TeamStatistics a, TeamStatistics b)
+    {
+        if (a.Bodovi != b.Bodovi)
+        {
+            return a.Bodovi < b.Bodovi;
+
+        }
+        else
+        {
+            return a.GolRazlika < b.GolRazlika;
+        }
+    }
+}
