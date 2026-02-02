@@ -1,0 +1,170 @@
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
+
+internal class Program
+    {
+    static void Main(string[] args)
+    {
+        DateTime yesterday = new DateTime(2021, 7, 1);
+        Temperature[] temperatures = new Temperature[]
+        {
+            new Temperature(33.1),
+            new Temperature(33.1,yesterday)
+
+        };
+        Console.WriteLine(temperatures[1]);
+
+
+        DeliveryDrone drone = new LowPoweredDrone(100, 100, true);
+        double[] tezina = { 1000,10000,10000, 10000, 5, 6 };
+        try
+        {
+            Support.KolikoPaketa(drone, tezina, 100);
+
+        }
+        catch(DeliveryException ex) 
+        {
+            Console.WriteLine($"{ex.Message}");
+        }
+        
+
+    }
+
+    }
+
+    public class Temperature
+    {
+        public double Value { get; private set; }
+        public DateTime Measurment { get; private set; }
+
+        public Temperature(double value)
+        {
+            this.Value = value;
+            Measurment = DateTime.Now;
+        }
+        public Temperature(double value, DateTime a)
+        {
+            this.Value = value;
+            this.Measurment = a;
+        }
+
+        public override string ToString()
+        {
+            return $" [T] {Measurment: dd/MM/yyyy HH:mm:ss} {Value}";
+        }
+      
+        public bool IsClose(Temperature a)
+    {
+        double departure = a.Value*0.1;
+        return ((a.Value-departure <= Value)&&(a.Value+departure>=Value))&&(Measurment.Month==a.Measurment.Month&&Measurment.Day==a.Measurment.Day);   
+    }
+
+
+    }
+
+public static class WeatherService
+{
+    public static int BrSkokova(Temperature[] a)
+    {
+        int brojac = 0;
+        for (int i = 1; i < a.Length-1; i++) 
+        {
+            if ((a[i - 1].Value < a[i].Value)&& (a[i].Value > a[i+1].Value))
+            {
+                brojac++;
+            }
+        }
+        return brojac;
+    }
+}
+
+
+class DeliveryDrone
+{
+    protected double range;
+    protected double maxWeight;
+
+    public DeliveryDrone(double range, double maxWeight)
+    {
+        this.range = range;
+        this.maxWeight = maxWeight;
+    }
+
+    public static bool operator==(DeliveryDrone a, DeliveryDrone b)
+    {
+        return a.range==b.range&&a.maxWeight==b.maxWeight;
+    }
+    public static bool operator !=(DeliveryDrone a, DeliveryDrone b)
+    {
+        return !(a.range == b.range && a.maxWeight == b.maxWeight);
+    }
+
+    public virtual bool CanDeliver(double range,double maxWeight)
+    {
+        return range <= this.range&&maxWeight <= this.maxWeight;
+    }
+}
+
+
+ class LowPoweredDrone : DeliveryDrone
+{
+    private bool ON {  get; set; }
+
+    public LowPoweredDrone(double range, double maxWeight, bool ON) : base(range, maxWeight)
+    {
+        this.ON = ON;
+    }
+
+    public void UnOff()
+    {
+        ON = !ON;
+    }
+
+    public override bool CanDeliver(double range, double maxWeight)
+    {
+        if (ON)
+        {
+            return range <= this.range*1.2 && maxWeight <= this.maxWeight;
+        }
+        else
+        {
+            return range <= this.range && maxWeight <= this.maxWeight;
+        }
+    }
+    
+}
+
+
+static class Support
+{
+    public static int KolikoPaketa(DeliveryDrone drone, double[] tezine, double udaljenost)
+    {
+        int koliko = 0;
+        for (int i = 0; i < tezine.Length; i++)
+        { 
+            if(drone.CanDeliver(udaljenost, tezine[i]))
+            {
+                koliko++;
+            }
+        }
+        if (koliko < tezine.Length/2)
+        {
+            throw new DeliveryException((double)koliko/tezine.Length);
+        }
+        return koliko;
+
+
+    }
+}
+
+public class DeliveryException : Exception
+{
+    public double postotak { get; private set;  }
+
+    public DeliveryException(double postotak):base($"PReamloiha realno{postotak*100}")
+    {
+        this.postotak = postotak * 100;
+    }
+
+
+}
