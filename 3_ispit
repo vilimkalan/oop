@@ -1,0 +1,243 @@
+using System.IO.Pipes;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
+
+internal class Program
+{
+    static void Main(string[] args)
+    {
+
+      
+
+    }
+
+    class WordScorer
+    {
+        public int MinDuljina {  get; private set; }
+        public int BrBodDuljina { get; private set; }
+        public int BrBodovaZaSamoglasnik {  get; private set; }
+
+        public WordScorer(int minDuljina, int brBodDuljina, int brBodovaZaSamoglasnik)
+        {
+            MinDuljina = minDuljina;
+            BrBodDuljina = brBodDuljina;
+            BrBodovaZaSamoglasnik = brBodovaZaSamoglasnik;
+        }
+
+        public WordScorer()
+        {
+            MinDuljina = 10;
+            BrBodDuljina = 1;
+            BrBodovaZaSamoglasnik = 1;
+        }
+        public override string ToString()
+        {
+            return $"Scorer info. Min. Lenght{MinDuljina}, lenght Points :{BrBodDuljina}, vowelPint{BrBodovaZaSamoglasnik}";
+        }
+
+        public int UkBodovi(string riječ)
+        {
+            int TotalBodovi = 0;
+            
+            riječ.ToUpper();
+            if (riječ.Length >= MinDuljina)
+            {
+                TotalBodovi += BrBodDuljina;
+            }
+            string vowels = "AEIOU";
+            foreach(var slovo in riječ)
+            {
+                if (vowels.Contains(slovo))
+                {
+                    TotalBodovi += BrBodovaZaSamoglasnik;
+                }
+            }
+            return TotalBodovi;
+        }
+
+    }
+
+    static class WordGame
+    {
+        public static double  AvgBrBod(string[] rijeci, WordScorer scorer)
+        {
+            int UkupnoBodova = 0;
+            foreach(var rijec in rijeci)
+            {
+                UkupnoBodova+=scorer.UkBodovi(rijec);
+            }
+            return UkupnoBodova / rijeci.Length;
+        }
+    }
+}
+
+
+public class Message
+{
+    public string Title { get; protected set; }
+    public string Contents {  get; protected set; }
+
+    public Message(string title, string contents)
+    {
+        Title = title;
+        Contents = contents;
+    }
+
+    public static bool operator>(Message a, Message b)
+    {
+        return a.Contents.Length > b.Contents.Length;
+    }
+
+    public static bool operator <(Message a, Message b)
+    {
+        return a.Contents.Length <b .Contents.Length;
+    }
+
+    public virtual void ToFile()
+    {
+        File.WriteAllText(Title+".txt",Contents);
+    }
+
+
+}
+
+public class TempMessage : Message
+{
+   public DateTime vrijemeKreiranja { get; private set; }
+
+    public DateTime vrijemeTrajanja { get; private set; }
+
+    public TempMessage(string title, string contents, DateTime vrijemeKreiranja, DateTime vrijemeTrajanja):base(title,contents)
+    {
+        this.vrijemeKreiranja = vrijemeKreiranja;
+        this.vrijemeTrajanja = vrijemeTrajanja;
+    }
+
+    public override void ToFile()
+    {
+        int kolicina = Contents.Length;
+        DateTime sada = DateTime.Now;
+        string zvjezdice = "";
+        if (sada > vrijemeTrajanja)
+        {
+            for(int i=0; i<kolicina; i++)
+            {
+                zvjezdice += "*";
+            }
+            File.WriteAllText(Title + ".txt",zvjezdice);
+        }
+        else base.ToFile();
+    }
+
+}
+
+public static class  DocumentInspector
+{
+    public static int Br30Pruka(List<string> rijeci, List<string> poruka)
+    {
+        double kolRijeci = 0;
+        int kolPoruka = 0;
+        
+        foreach(var por in poruka)
+        {
+            foreach(var rijec in rijeci)
+            {
+                if (por.Contains(rijec))
+                {
+                    kolRijeci++;
+                }
+            }
+            if ((kolRijeci / rijeci.Count)>=0.3)
+            {
+                kolPoruka++;
+            }
+
+        }
+
+        if (kolPoruka == 0) { throw new ArgumentException(); }
+
+        return kolPoruka;
+    }
+}
+
+
+
+class Ticket
+{
+    public Ticket(decimal price, string showName, DateTime startsAt)
+    {
+        Price = price;
+        ShowName = showName;    
+        StartsAt = startsAt;
+    }
+    public decimal Price { get; set; }
+    public string ShowName { get; set; }
+    public DateTime StartsAt { get; set; }
+
+
+}
+ interface ITicketValidator
+{
+  bool IsValid(Ticket tickets);
+  decimal Zarada(List<Ticket> tickets);
+
+}
+
+
+class StandardEvaluator: ITicketValidator
+{
+    List<String> shows = new List<string>();
+    public void Add(string show) { this.shows.Add(show); }
+    public  bool IsValid(Ticket tickets)
+    {
+        if (shows.Contains(tickets.ShowName) && (tickets.StartsAt > DateTime.Now))
+        {
+            return true;
+        }
+        else return false;
+    }
+
+    public decimal Zarada(List<Ticket> tickets) {
+        decimal zbroj = 0;
+       foreach(var ticket in tickets)
+        {
+            if (shows.Contains(ticket.ShowName)&&(ticket.StartsAt<DateTime.Now))
+            {
+                zbroj += ticket.Price;
+            }
+        }
+        return zbroj;
+    }
+}
+
+class TicektTracker
+{
+    ITicketValidator ticketValidator;
+
+    List<Ticket> tickets;
+
+    public TicektTracker(ITicketValidator ticketValidator)
+    {
+        this.ticketValidator = ticketValidator;
+        tickets= new List<Ticket>();
+    }
+
+    public void AddTicekt(Ticket ticket)
+    {
+        tickets.Add(ticket);
+    }
+
+    public List<Ticket> GetTickets()
+    {
+        List<Ticket> listavaljanih = new List<Ticket>();
+
+        foreach (var ticket in tickets)
+        {
+            if (ticketValidator.IsValid(ticket))
+            {
+                listavaljanih.Add(ticket);
+            }
+
+        }return listavaljanih;
+    }
+}
