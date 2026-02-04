@@ -1,0 +1,110 @@
+
+using System.IO.Pipes;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading;
+
+internal class Program
+{
+    static void Main(string[] args)
+    {
+
+
+    }
+
+
+
+    class Footballer
+    {
+        public Footballer(string name, decimal price, string currentClub)
+        {
+            this.Name = name;
+            this.Price = price;
+            this.CurrentClub = currentClub;
+        }
+        public decimal Price { get; set; }
+        public string CurrentClub { get; set; }
+        public string Name { get; set; }
+        public List<string> PastClubs { get; set; }
+
+
+    }
+
+    interface IPlayerPicker
+    {
+        decimal CijenaIgr(List<Footballer> igraci);
+        Dictionary<string, Footballer> GetList(List<Footballer> igraci);
+    }
+
+    class TransferMarket
+    {
+        private List<Footballer> footballers;
+        private IPlayerPicker playerPicker;
+
+        public TransferMarket(IPlayerPicker playerPicker)
+        {
+            footballers = new List<Footballer>();
+        }
+
+        public decimal IzracunCijene()
+        {
+            return playerPicker.CijenaIgr(footballers);
+        }
+
+
+    }
+
+
+    class PlayerRepository : IPlayerPicker
+    {
+
+
+        public decimal CijenaIgr(List<Footballer> igraci)
+        {
+            decimal cijena = 0;
+            foreach (var igrac in igraci)
+            {
+                if (igrac.PastClubs.Count == 0)
+                {
+                    cijena += igrac.Price;
+                }
+            }
+        }
+        public Dictionary<string, Footballer> GetList(List<Footballer> igraci)
+        {
+            Dictionary<string, Footballer> Probni = new Dictionary<string, Footballer>();
+
+            List<string> klubovi = new List<string>();
+
+            foreach (var igrac in igraci)
+            {
+                if (!(klubovi.Contains(igrac.CurrentClub)))
+                {
+                    klubovi.Add(igrac.CurrentClub);
+                }
+            }
+
+            foreach (var klub in klubovi)
+            {
+                foreach (var igrac in igraci)
+                {
+                    
+                    if (klub == igrac.CurrentClub)
+                    {
+                        if()
+
+
+                    }
+
+                }
+
+            }
+        }
+
+
+
+
+    }
+}
+
+
