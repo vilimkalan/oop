@@ -1,0 +1,111 @@
+
+using System.Reflection.Metadata.Ecma335;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks.Dataflow;
+using System.Transactions;
+
+internal class Program
+{
+
+
+    static void Main(string[] args)
+    {
+        DailyOxygenSaturation saturations = new DailyOxygenSaturation("Patient_378", 5);
+        Console.WriteLine(saturations);
+        Console.WriteLine(saturations.Size);
+        saturations.SetSaturationAt(1, 93.22);
+        Console.WriteLine(saturations);
+
+    }
+
+
+    class DailyOxygenSaturation
+    {
+        public string Id { get; private set; }
+        double[] dailyOxygenPercent;
+        public int Size { get { return dailyOxygenPercent.Length; } }
+        public double GetOxygenPercentAt(int position) => this.dailyOxygenPercent[position];
+
+        public DailyOxygenSaturation(string id, int size)
+        {
+            this.Id = id;
+
+            dailyOxygenPercent = new double[size];
+            for (int i = 0; i < size; i++)
+            {
+                dailyOxygenPercent[i] = 100;
+            }
+        }
+
+        public void SetSaturationAt(int positionn, double value)
+        {
+            dailyOxygenPercent[positionn] = value;
+        }
+
+        public override string ToString()
+        {
+            string saturacije = "";
+            for (int i = 0; i < Size; i++)
+            {
+                if (i < Size - 1)
+                {
+                    saturacije += $"{dailyOxygenPercent[i]}, ";
+                }
+                else saturacije += $"{dailyOxygenPercent[i]}";
+            }
+            // saturacije=saturacije.TrimEnd(' ',',');
+            return saturacije;
+        }
+
+        public bool IsEndangered(Patient patient)
+        {
+            foreach (var p in dailyOxygenPercent)
+            {
+                if (p < patient.MinimalOxygenPercent)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+    }
+    class Patient
+    {
+        public double MinimalOxygenPercent { get; private set; }
+
+        public Patient(double minimalOxygenPercent)
+        {
+            this.MinimalOxygenPercent = minimalOxygenPercent;
+        }
+    }
+
+
+    static class Dispatcher
+    {
+        public static DailyOxygenSaturation Join(DailyOxygenSaturation a, DailyOxygenSaturation b)
+        {
+            int noviSize = a.Size + b.Size;
+            DailyOxygenSaturation saturacija = new DailyOxygenSaturation("novi", noviSize);
+          
+            for (int i = 0; i < a.Size; i++)
+            {
+                saturacija.SetSaturationAt(i, a.GetOxygenPercentAt(i));
+
+            }
+            for (int i =0; i < b.Size; i++)
+            {
+                saturacija.SetSaturationAt(i+a.Size, b.GetOxygenPercentAt(i));
+
+            }
+            return saturacija;
+
+        }
+
+
+
+    }
+
+}
+
