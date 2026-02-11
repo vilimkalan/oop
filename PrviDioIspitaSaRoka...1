@@ -106,6 +106,82 @@ internal class Program
 
 
     }
+    using System.Reflection.Metadata.Ecma335;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks.Dataflow;
+using System.Transactions;
+
+internal class Program
+{
+
+
+    static void Main(string[] args)
+    {
+       
+    }
+
+
+    class Chapter
+    {
+        public string Title { get; set; }
+        public string Contents { get; set; }
+
+        public Chapter(string title, string contents)
+        {
+            Title = title;
+            Contents = contents;
+        }
+    }
+
+    abstract class Story
+    {
+        public string Title { get; protected set; }
+        protected List<Chapter> chapters;
+
+        public Story(string title)
+        {
+            Title = title;
+            chapters = new List<Chapter>();
+        }
+
+        public void AddChapter(Chapter s) => chapters.Add(s);
+
+        public Chapter GetChapterAt(int index) => chapters[index];
+
+        public void SplitChapter(string naslov)
+        {
+            string FirstHalf = "";
+            string SecondHalf = "";
+            
+           for(int index=0; index<chapters.Count; index++)
+            {
+
+                if (naslov == chapters[index].Title)
+                {
+                    string contents = chapters[index].Contents;
+                    int half = contents.Length / 2;
+
+                    string firstHalf = contents.Substring(0, half);
+                    string secondHalf = contents.Substring(half);
+
+
+                    Chapter prviDio = new Chapter($"{naslov}" + "(1)", FirstHalf);
+                    Chapter drugiDio = new Chapter($"{naslov}" + "(2)", SecondHalf);
+
+                    chapters.RemoveAt(index);
+                    chapters.Insert(index, prviDio);
+                    chapters.Insert(index+1, drugiDio);
+                }
+                index++;
+
+            }
+
+        }
+    }
+
+
+}
 
 }
 
