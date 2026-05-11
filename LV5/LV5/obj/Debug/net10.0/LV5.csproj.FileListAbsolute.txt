@@ -1,0 +1,14 @@
+C:\Users\vilim\Desktop\vjezba za objetno\LV5\LV5\bin\Debug\net10.0\LV5.exe
+C:\Users\vilim\Desktop\vjezba za objetno\LV5\LV5\bin\Debug\net10.0\LV5.deps.json
+C:\Users\vilim\Desktop\vjezba za objetno\LV5\LV5\bin\Debug\net10.0\LV5.runtimeconfig.json
+C:\Users\vilim\Desktop\vjezba za objetno\LV5\LV5\bin\Debug\net10.0\LV5.dll
+C:\Users\vilim\Desktop\vjezba za objetno\LV5\LV5\bin\Debug\net10.0\LV5.pdb
+C:\Users\vilim\Desktop\vjezba za objetno\LV5\LV5\obj\Debug\net10.0\LV5.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\vilim\Desktop\vjezba za objetno\LV5\LV5\obj\Debug\net10.0\LV5.AssemblyInfoInputs.cache
+C:\Users\vilim\Desktop\vjezba za objetno\LV5\LV5\obj\Debug\net10.0\LV5.AssemblyInfo.cs
+C:\Users\vilim\Desktop\vjezba za objetno\LV5\LV5\obj\Debug\net10.0\LV5.csproj.CoreCompileInputs.cache
+C:\Users\vilim\Desktop\vjezba za objetno\LV5\LV5\obj\Debug\net10.0\LV5.dll
+C:\Users\vilim\Desktop\vjezba za objetno\LV5\LV5\obj\Debug\net10.0\refint\LV5.dll
+C:\Users\vilim\Desktop\vjezba za objetno\LV5\LV5\obj\Debug\net10.0\LV5.pdb
+C:\Users\vilim\Desktop\vjezba za objetno\LV5\LV5\obj\Debug\net10.0\LV5.genruntimeconfig.cache
+C:\Users\vilim\Desktop\vjezba za objetno\LV5\LV5\obj\Debug\net10.0\ref\LV5.dll
